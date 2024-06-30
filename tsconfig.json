@@ -1,0 +1,57 @@
+{
+  "compilerOptions": {
+    "target": "ESNext",
+    "jsx": "preserve",
+    "lib": ["DOM", "ESNext"],
+    "baseUrl": "./",
+    "module": "ESNext",
+    "moduleResolution": "Bundler",
+    "paths": {
+      "~/packages": ["./packages"],
+      "@ver5/ui": ["packages/vitepress-ui/src/index.ts"],
+      "@ver5/unconfig-vitepress/*": ["./packages/unconfig-vitepress/src/*"],
+      "@ver5/vitepress-plugin-data-driver/*": [
+        "./packages/vitepress-plugin-data-driver/src/*"
+      ],
+      "@ver5/vitepress-plugin-enhanced-readabilities/*": [
+        "./packages/vitepress-plugin-enhanced-readabilities/src/*"
+      ],
+      "@ver5/vitepress-plugin-inline-link-preview/*": [
+        "./packages/vitepress-plugin-inline-link-preview/src/*"
+      ],
+      "@ver5/vitepress-plugin-graph-view/*": [
+        "./packages/vitepress-plugin-graph-view/src/*"
+      ]
+    },
+    "resolveJsonModule": true,
+    "types": ["node", "vite/client"],
+    "strict": true,
+    "strictNullChecks": true,
+    "noFallthroughCasesInSwitch": true,
+    "noImplicitAny": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "noEmit": true,
+    "removeComments": false,
+    "esModuleInterop": true,
+    "forceConsistentCasingInFileNames": true,
+    "isolatedModules": true,
+    "verbatimModuleSyntax": true,
+    "skipLibCheck": true
+  },
+  "include": [
+    "packages/**/*.d.ts",
+    "packages/**/*.d.mts",
+    "packages/**/*.ts",
+    "packages/**/*.mts",
+    "packages/**/*.tsx",
+    "packages/**/*.vue",
+    "docs/**/*.ts",
+    "docs/**/*.mts",
+    "docs/**/*.vue",
+    "docs/**/.vitepress/**/*.ts",
+    "docs/**/.vitepress/**/*.mts",
+    "docs/**/.vitepress/**/*.vue"
+  ],
+  "exclude": ["node_modules"]
+}

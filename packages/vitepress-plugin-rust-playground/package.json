@@ -1,0 +1,73 @@
+{
+  "name": "@ver5/vitepress-plugin-rust-playground",
+  "version": "1.0.0",
+  "description": "",
+  "files": [
+    "README.md",
+    "dist",
+    "package.json"
+  ],
+  "keywords": [
+    "vitepress",
+    "vitepress-plugin",
+    "editor",
+    "playground",
+    "rust-editor",
+    "rust-playground"
+  ],
+  "author": "ChandlerVer5",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/uxiew/vitepress-crates/issues"
+  },
+  "homepage": "https://github.com/uxiew/vitepress-crates#readme",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/uxiew/vitepress-crates"
+  },
+  "type": "module",
+  "main": "./dist/client/index.js",
+  "module": "./dist/client/index.mjs",
+  "types": "./dist/client/index.d.ts",
+  "exports": {
+    ".": {
+      "require": "./dist/client/index.js",
+      "import": "./dist/client/index.mjs",
+      "types": "./dist/client/index.d.ts"
+    },
+    "./client": {
+      "require": "./dist/client/index.js",
+      "import": "./dist/client/index.mjs",
+      "types": "./dist/client/index.d.ts"
+    },
+    "./vitepress": {
+      "require": "./dist/vitepress/index.cjs",
+      "import": "./dist/vitepress/index.mjs",
+      "types": "./dist/vitepress/index.d.ts"
+    }
+  },
+  "scripts": {
+    "dev": "unbuild --stub",
+    "stub": "unbuild --stub",
+    "build": "unbuild",
+    "package:publish": "pnpm build && pnpm publish --access public --no-git-checks"
+  },
+  "dependencies": {
+    "@codemirror/commands": "^6.6.0",
+    "@codemirror/lang-rust": "6.0.0",
+    "@codemirror/language": "^6.10.2",
+    "@codemirror/state": "^6.4.1",
+    "@codemirror/view": "^6.27.0",
+    "@lezer/common": "^1.2.1",
+    "@lezer/highlight": "^1.2.0",
+    "filter-obj": "^6.1.0",
+    "markdown-it": "^14.1.0",
+    "simple-stringify": "^1.2.1",
+    "vue": "^3.4.27"
+  },
+  "devDependencies": {
+    "@types/markdown-it": "^14.1.1",
+    "@types/node": "^20.14.8",
+    "vitepress": "^1.2.3"
+  }
+}

@@ -1,0 +1,68 @@
+version: "0.2"
+ignorePaths: []
+dictionaryDefinitions: []
+dictionaries: []
+words:
+  - antfu
+  - apng
+  - asciicast
+  - asciinema
+  - Astro
+  - Attributify
+  - avatar
+  - ayaka
+  - Baloo
+  - baloo-2
+  - blurhash
+  - canvaskit
+  - Chakra
+  - chakra-petch
+  - cijiugechu
+  - colorette
+  - composables
+  - contributor
+  - datetime
+  - defu
+  - easytag
+  - ElMassimo
+  - emittypes
+  - evanw
+  - execa
+  - frontmatter
+  - Gitea
+  - graymatter
+  - iconify
+  - jfif
+  - Logseq
+  - mkdist
+  - napi
+  - neko
+  - Nisekoi5
+  - nodir
+  - nolebase
+  - Nólëbase
+  - Northword
+  - Noto
+  - octicon
+  - Petch
+  - pjpeg
+  - quotepath
+  - Rehype
+  - resvg
+  - retext
+  - rizumu
+  - Roboto
+  - shikijs
+  - testdata
+  - thumbhash
+  - thumbhashes
+  - Twoslash
+  - unconfig
+  - uncrypto
+  - unlazy
+  - unocss
+  - Vite
+  - vitepress
+  - vueuse
+ignoreWords: []
+import: []

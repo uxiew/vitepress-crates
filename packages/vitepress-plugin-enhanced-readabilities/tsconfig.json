@@ -1,0 +1,21 @@
+{
+  "extends": "../../tsconfig.json",
+  "compilerOptions": {
+    "composite": false,
+    "moduleResolution": "Node",
+    "paths": {
+      "@ver5/vitepress-ui": ["../ui/src/index.ts"],
+      "@ver5/vitepress-ui/*": ["../ui/src/*"]
+    },
+    "types": ["./yaml.d.ts"],
+    "noImplicitAny": false,
+    "declaration": false,
+    "noEmit": false,
+    "outDir": "./dist",
+    "removeComments": false,
+    "sourceMap": true,
+    "skipLibCheck": true
+  },
+  "include": ["src/**/*.ts", "src/**/*.d.ts", "src/**/*.vue", "src/**/*.tsx"],
+  "exclude": ["**/dist/**"]
+}

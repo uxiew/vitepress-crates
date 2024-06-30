@@ -1,0 +1,53 @@
+{
+  "name": "@ver5/markdown-it-token",
+  "type": "module",
+  "version": "2.2.0",
+  "description": "A markdown-it plugin that transforms elements.",
+  "author": {
+    "name": "Nólëbase",
+    "email": "nolebase@ayaka.moe",
+    "url": "https://github.com/nolebase"
+  },
+  "license": "MIT",
+  "homepage": "https://nolebase-integrations.ayaka.io/pages/en/integrations/markdown-it-element-transform/",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/nolebase/integrations.git",
+    "directory": "packages/markdown-it-token"
+  },
+  "keywords": [
+    "vitepress",
+    "nolebase",
+    "readabilities",
+    "markdown",
+    "markdown-it",
+    "markdown-it-plugin",
+    "vitepress-plugin",
+    "nolebase-integration"
+  ],
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.mjs",
+      "require": "./dist/index.cjs"
+    }
+  },
+  "main": "dist/index.cjs",
+  "module": "dist/index.mjs",
+  "types": "dist/index.d.ts",
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "stub": "unbuild --stub",
+    "dev": "unbuild --stub",
+    "build": "unbuild",
+    "package:publish": "pnpm build && pnpm publish --access public --no-git-checks"
+  },
+  "peerDependencies": {
+    "markdown-it": ">=14.0.0"
+  },
+  "devDependencies": {
+    "@types/markdown-it": "^14.1.1"
+  }
+}
