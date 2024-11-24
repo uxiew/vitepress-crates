@@ -4,6 +4,27 @@
 import type MarkdownIt from 'markdown-it'
 
 export function fencePlugin(md: MarkdownIt) {
+  // 添加预处理器，在 fence 标记前添加空行
+  md.core.ruler.before('block', 'ensure_fence_newline', state => {
+    const lines = state.src.split('\n')
+    let result = []
+    
+    for (let i = 0; i < lines.length; i++) {
+      const line = lines[i]
+      const trimmedLine = line.trimStart()
+      
+      // 检查是否是 fence 开始
+      if (trimmedLine.startsWith('```') || trimmedLine.startsWith('~~~')) {
+        // 如果不是第一行且前一行不是空行，则添加空行
+        if (i > 0 && lines[i - 1].trim() !== '') {
+          result.push('')
+        }
+      }
+      result.push(line)
+    }
+    
+    state.src = result.join('\n')
+  })
 
   md.block.ruler.at('fence', (state, startLine, endLine, silent) => {
     let pos = state.bMarks[startLine] + state.tShift[startLine]
