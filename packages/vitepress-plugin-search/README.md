@@ -1,9 +1,9 @@
 ## Provides local search to your documentation site
 
-## Installing
+## Install
 
 ```js
-npm i @ver5/vitepress-plugin-search flexsearch -D
+pnpm add -D @ver5/vitepress-plugin-search flexsearch
 ```
 
 ## Add the plugin
@@ -52,5 +52,7 @@ Provided by flexsearch
 
 See [chinese settings for example](https://github.com/emersonbottero/vitepress-plugin-search/issues/11)
 
+
 ## Credits
+
 - [flexsearch](https://github.com/nextapps-de/flexsearch)

@@ -1,18 +1,12 @@
 {
   "name": "@ver5/vitepress-ui",
   "type": "module",
-  "version": "2.2.0",
-  "description": "A collection of Vue components Nolebase uses.",
-  "author": {
-    "name": "Nólëbase",
-    "email": "nolebase@ayaka.moe",
-    "url": "https://github.com/nolebase"
-  },
+  "version": "1.0.0",
+  "description": "A collection of Vue components for VitePress uses.",
   "license": "MIT",
-  "homepage": "https://nolebase-integrations.ayaka.io/pages/en/ui/",
   "repository": {
     "type": "git",
-    "url": "https://github.com/nolebase/integrations.git",
+    "url": "https://github.com/uxiew/vitepress-crates.git",
     "directory": "packages/ui"
   },
   "keywords": [
@@ -24,9 +18,7 @@
     "components",
     "component-library",
     "markdown",
-    "frontmatter",
-    "nolebase",
-    "nolebase-integration"
+    "frontmatter"
   ],
   "sideEffects": [
     "**/*.css"

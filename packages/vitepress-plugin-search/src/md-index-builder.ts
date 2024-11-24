@@ -1,14 +1,13 @@
 import MarkdownIt from "markdown-it";
 import { Options } from "./types.js";
 import buildDocs from "./docs-builder.js";
-// @ts-ignore
-import FlexSearch from "flexsearch/dist/flexsearch.bundle.js";
+import FlexSearch from "flexsearch";
 
 const md = new MarkdownIt();
 let MAX_PREVIEW_CHARS = 62; // Number of characters to show for a given search result
 
 const buildIndexSearch = (docs: any[], options: Options) => {
-  var searchIndex = new FlexSearch.Index(options);
+  const searchIndex = new FlexSearch.Index(options);
   docs.forEach((doc: any) => {
     searchIndex.add(doc.id, doc.a + " " + doc.b);
   });
@@ -45,10 +44,16 @@ export async function IndexSearch(
   const docs = await buildDocs(HTML_FOLDER, options);
   const previews = buildPreviews(docs);
   const flexIdx = buildIndexSearch(docs, options);
-  var Export = {
+
+  console.log("flexIdx", flexIdx)
+  const Export = {
+    // @ts-ignore
     reg: JSON.stringify(flexIdx.registry),
+    // @ts-ignore
     cfg: JSON.stringify(flexIdx.cfg),
+    // @ts-ignore
     map: JSON.stringify(flexIdx.map),
+    // @ts-ignore
     ctx: JSON.stringify(flexIdx.ctx),
   };
 

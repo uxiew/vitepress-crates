@@ -10,9 +10,8 @@
   "keywords": [
     "vitepress",
     "vitepress-plugin",
-    "editor",
     "playground",
-    "rust-editor",
+    "vitepress-playground",
     "rust-playground"
   ],
   "author": "ChandlerVer5",
@@ -40,10 +39,10 @@
       "import": "./dist/client/index.mjs",
       "types": "./dist/client/index.d.ts"
     },
-    "./vitepress": {
-      "require": "./dist/vitepress/index.cjs",
-      "import": "./dist/vitepress/index.mjs",
-      "types": "./dist/vitepress/index.d.ts"
+    "./markdown": {
+      "require": "./dist/markdown/index.cjs",
+      "import": "./dist/markdown/index.mjs",
+      "types": "./dist/markdown/index.d.ts"
     }
   },
   "scripts": {
@@ -52,22 +51,26 @@
     "build": "unbuild",
     "package:publish": "pnpm build && pnpm publish --access public --no-git-checks"
   },
+  "peerDependencies": {
+    "markdown-it": "^14.1.0",
+    "shiki": ">=1.9.0",
+    "vue": "^3.3.4"
+  },
   "dependencies": {
     "@codemirror/commands": "^6.6.0",
     "@codemirror/lang-rust": "6.0.0",
     "@codemirror/language": "^6.10.2",
     "@codemirror/state": "^6.4.1",
     "@codemirror/view": "^6.27.0",
-    "@lezer/common": "^1.2.1",
     "@lezer/highlight": "^1.2.0",
+    "@ver5/markdown-it-fence": "*",
     "filter-obj": "^6.1.0",
-    "markdown-it": "^14.1.0",
-    "simple-stringify": "^1.2.1",
-    "vue": "^3.4.27"
+    "simple-stringify": "^1.2.1"
   },
   "devDependencies": {
     "@types/markdown-it": "^14.1.1",
     "@types/node": "^20.14.8",
+    "sass": "^1.77.6",
     "vitepress": "^1.2.3"
   }
 }

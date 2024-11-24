@@ -23,15 +23,16 @@ import {
   indentWithTab,
 } from "@codemirror/commands";
 import { styling } from "./codemirror-styling";
+import { excludeKeys, type DistributiveOmit } from "filter-obj";
+import { type ShikiTransformer, codeToHtml } from "shiki";
 import { runRustCode, type RunResult } from "./rust";
 import { type Options } from "./config";
-import { excludeKeys, type DistributiveOmit } from "filter-obj";
-import { boolify } from "./utils";
-import "./style.scss";
+import "./style.css";
 
 interface Props {
   id: string;
   maxHeight?: string;
+  maxOutputHeight?: string;
 
   //  ---- options ----
   channel?: Options["channel"];
@@ -44,24 +45,28 @@ interface Props {
 
 const props = withDefaults(defineProps<Props>(), {
   maxHeight: "344px", // 2:1 ratio with VitePress theme's max width of 688px
+  maxOutputHeight: "400px", // 2:1 ratio with VitePress theme's max width of 688px
+  channel: "stable",
+  edition: "2021",
+  mode: "debug",
+  crateType: "bin",
+  tests: false,
+  backtrace: false,
 });
 
-const execOptions = computed(() =>
-  boolify(
-    excludeKeys(
-      props,
-      (k, v) => !["id", "maxHeight"].includes(k) || v !== undefined
-    )
-  )
-);
+const execOptions = computed(() => ({
+  channel: props.channel,
+  edition: props.edition,
+  mode: props.mode,
+  crateType: props.crateType,
+  tests: props.tests,
+  backtrace: props.backtrace,
+}));
 
-const storageKey = computed(() => `rp-editor-${props.id}`);
+const storageKey = computed(() => `rp-${props.id}`);
 
 const mounted = ref(false);
 const running = ref(false);
-
-// 等待用户输入？
-const waitingForInput = ref(false);
 
 let anchor = ref<HTMLDivElement>();
 let parent = ref<HTMLDivElement>();
@@ -69,11 +74,16 @@ let input = ref<HTMLInputElement>();
 let initialCode: string;
 let editor: EditorView;
 
+const showOptions = ref(false);
+const optionsRef = ref<HTMLButtonElement>();
+
 onMounted(() => {
   const prev = anchor.value?.previousElementSibling;
   const codeElement = prev?.classList.contains(`language-rust`) ? prev : null;
   initialCode = codeElement?.querySelector("pre")?.textContent ?? "";
   codeElement?.setAttribute("hidden", "");
+
+  document.addEventListener('click', handleClickOutside);
 
   editor = new EditorView({
     extensions: [
@@ -84,21 +94,22 @@ onMounted(() => {
       lineNumbers(),
       highlightActiveLine(),
       styling,
+      EditorView.updateListener.of((e) => {
+        if (e.docChanged) {
+          element.textContent = e.state.doc.toString();
+        }
+      }),
     ],
     parent: parent.value!,
     doc: localStorage.getItem(storageKey.value) ?? initialCode,
   });
 
-  // ignore those element textContent to copy
-  editor.scrollDOM
-    .querySelector(".cm-gutters")
-    ?.classList.add("vp-copy-ignore");
-  editor.scrollDOM
-    .querySelectorAll(".cm-layer")
-    ?.forEach((el) => el.classList.add("vp-copy-ignore"));
-
-  console.log(props, execOptions.value);
-
+  // create element for copy
+  const element = document.createElement("div");
+  element.setAttribute("hidden", "true");
+  element.textContent = editor.state.doc.toString();
+  parent.value?.insertAdjacentElement("beforebegin", element);
+  // console.log(props, execOptions.value, updateOutput());
   document.addEventListener("visibilitychange", () => {
     save(editor.state.doc.toString());
   });
@@ -107,48 +118,30 @@ onMounted(() => {
 });
 
 onUnmounted(() => {
+  document.removeEventListener('click', handleClickOutside);
   save(editor.state.doc.toString());
   editor.destroy();
 });
-
-//   worker.addEventListener('message', handleMessage)
-
-// async function handleMessage(output: string) {
-//   if (e.data.id !== props.id) return;
-
-//   if (e.data.input) {
-//     waitingForInput.value = true;
-//     await nextTick();
-//     input.value?.focus();
-//   }
-//   if (output) updateOutput(e.data.output);
-//   if (e.data.done) running.value = false;
-// }
 
 const inputText = ref("");
 watchEffect(() => {
   if (input.value) input.value.style.width = `${inputText.value.length + 1}ch`;
 });
 
-function handleInput() {
-  waitingForInput.value = false;
-
-  inputText.value = "";
-}
-
 const buttonText = computed(() => (running.value ? "running..." : "run code"));
+const showOutput = computed(() => !running.value && output.value.length > 0);
 
-const outputLines = computed(() => {
-  const lines = output.value.map((l) => l.join(""));
-  if (lines[lines.length - 1] === "" && !waitingForInput.value) lines.pop();
-  return lines.length === 0 ? [""] : lines;
-});
+// const outputLines = computed(() => {
+//   const lines = output.value.map((l) => l.join(""));
+//   if (lines[lines.length - 1] === "" && !waitingForInput.value) lines.pop();
+//   return lines.length === 0 ? [""] : lines;
+// });
 
 async function run() {
+  running.value = true;
   const code = editor.state.doc.toString();
   save(code);
   resetOutput();
-  running.value = true;
 
   let result: RunResult;
   try {
@@ -164,17 +157,12 @@ async function run() {
       exitDetail: "",
     };
   }
-  updateOutput(result.success ? result.stdout : result.stderr);
+  await updateOutput(result);
   running.value = false;
 }
 
 function reset() {
-  if (running.value) {
-    // workaround needing to input before interrupt
-    if (waitingForInput.value) handleInput();
-
-    return;
-  }
+  if (running.value)  return;
   localStorage.removeItem(storageKey.value);
   editor.dispatch({
     changes: { from: 0, to: editor.state.doc.length, insert: initialCode },
@@ -190,99 +178,169 @@ function save(code: string) {
   else localStorage.setItem(storageKey.value, code);
 }
 
-const output = ref<string[][]>([]);
+const output = ref<string>("");
 const outputWidth = 72;
 let outputRow = 0;
 let outputCol = 0;
 
-function updateOutput(raw: string) {
-  for (const c of raw) {
-    if (c === "\n") {
-      outputRow++;
-      outputCol = 0;
-      output.value[outputRow] = Array.from({ length: outputWidth });
-      continue;
-    }
-    if (c === "\b") {
-      outputCol--;
-      if (outputCol < 0) {
-        outputRow--;
-        outputCol = outputWidth - 1;
-      }
-      if (outputRow < 0) {
-        outputRow = 0;
-        outputCol = 0;
-      }
-      continue;
-    }
-    output.value[outputRow][outputCol] = c;
-    outputCol++;
-  }
+async function updateOutput(raw: RunResult) {
+  const { success, stdout, stderr } = raw;
+
+  let res =  '';
+  const sep =  '=========';
+  res += `${sep}Standard Output:${sep}\n${stdout}\n`;
+  res += `${sep}Standard Error:${sep}\n${stderr}`;
+
+  output.value = await codeToHtml(res, {
+    lang: stdout.trim() ? "txt" : "rust",
+    themes: { light: "github-light", dark: "github-dark" },
+    defaultColor: false,
+    transformers: [
+      {
+        name: "rp:add-class",
+        pre(node) {
+          this.addClassToHast(node, "vp-code");
+        },
+      },
+      // https://github.com/rust-lang/rust-playground/blob/main/ui/frontend/Output/OutputPrism.tsx
+      // language: 'rust_mir' | 'rust_errors';
+      {
+        name: "rp:error-output",
+        code(hast) {},
+        line(node, line) {
+          this.meta;
+          node.children.forEach((child) => {
+            child;
+          });
+        },
+      },
+    ],
+  });
 }
 
 function resetOutput() {
-  output.value = [Array.from({ length: outputWidth })];
+  output.value = "";
   outputRow = 0;
   outputCol = 0;
+}
+
+function handleClickOutside(event: MouseEvent) {
+  if (optionsRef.value && !optionsRef.value.contains(event.target as Node)) {
+    showOptions.value = false;
+  }
 }
 </script>
 
 <template>
-  <div ref="anchor" class="wrapper language-rust" :id="'rp_' + props.id">
-    <!-- inject vitepress's copy code button -->
-    <button title="Copy Code" class="copy"></button>
-    <button
-      v-if="mounted"
-      class="run"
-      @click="run"
-      :disabled="running"
-      :title="buttonText"
-    >
-      <span class="sr-only">{{ buttonText }}</span>
-      <svg
-        v-if="running"
-        xmlns="http://www.w3.org/2000/svg"
-        width="32"
-        height="32"
-        viewBox="0 0 24 24"
+  <div ref="anchor">
+    <div class="wrapper language-rust" :id="'rp_' + props.id">
+      <!-- options dropdown -->
+      <button class="options" v-if="mounted" ref="optionsRef">
+        <button class="options-toggle" @click="showOptions = !showOptions">
+          <span>{{ execOptions.channel }} ({{ execOptions.edition }})</span>
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24">
+            <path fill="currentColor" d="M7 10l5 5 5-5z"/>
+          </svg>
+        </button>
+        <div class="options-menu" v-show="showOptions">
+          <div class="option">
+            <label>Channel: <select v-model="execOptions.channel">
+              <option value="stable">Stable</option>
+              <option value="beta">Beta</option>
+              <option value="nightly">Nightly</option>
+            </select></label>
+          </div>
+          <div class="option">
+            <label>Edition: <select v-model="execOptions.edition">
+              <option value="2015">2015</option>
+              <option value="2018">2018</option>
+              <option value="2021">2021</option>
+              <option value="2024">2024</option>
+            </select></label>
+          </div>
+          <div class="option">
+            <label>Mode: <select v-model="execOptions.mode">
+              <option value="debug">Debug</option>
+              <option value="release">Release</option>
+            </select></label>
+          </div>
+          <div class="option">
+            <label>Type: <select v-model="execOptions.crateType">
+              <option value="bin">Binary</option>
+              <option value="lib">Library</option>
+            </select></label>
+          </div>
+          <div class="option">
+            <label><input type="checkbox" v-model="execOptions.tests"> Run Tests</label>
+          </div>
+          <div class="option">
+            <label><input type="checkbox" v-model="execOptions.backtrace"> Show Backtrace</label>
+          </div>
+        </div>
+      </button>
+      
+      <!-- inject vitepress's copy code button -->
+      <button title="Copy Code" class="copy"></button>
+      
+      <button
+        v-if="mounted"
+        class="run"
+        @click="run"
+        :disabled="running"
+        :title="buttonText"
       >
-        <path
-          fill="currentColor"
-          d="M12 2A10 10 0 1 0 22 12A10 10 0 0 0 12 2Zm0 18a8 8 0 1 1 8-8A8 8 0 0 1 12 20Z"
-          opacity=".5"
-        />
-        <path
-          fill="currentColor"
-          d="M20 12h2A10 10 0 0 0 12 2V4A8 8 0 0 1 20 12Z"
+        <span class="sr-only">{{ buttonText }}</span>
+        <svg
+          v-if="running"
+          xmlns="http://www.w3.org/2000/svg"
+          width="32"
+          height="32"
+          viewBox="0 0 24 24"
         >
-          <animateTransform
-            attributeName="transform"
-            dur="1s"
-            from="0 12 12"
-            repeatCount="indefinite"
-            to="360 12 12"
-            type="rotate"
+          <path
+            fill="currentColor"
+            d="M12 2A10 10 0 1 0 22 12A10 10 0 0 0 12 2Zm0 18a8 8 0 1 1 8-8A8 8 0 0 1 12 20Z"
+            opacity=".5"
           />
-        </path>
-      </svg>
+          <path
+            fill="currentColor"
+            d="M20 12h2A10 10 0 0 0 12 2V4A8 8 0 0 1 20 12Z"
+          >
+            <animateTransform
+              attributeName="transform"
+              dur="1s"
+              from="0 12 12"
+              repeatCount="indefinite"
+              to="360 12 12"
+              type="rotate"
+            />
+          </path>
+        </svg>
+        <svg
+          v-else
+          xmlns="http://www.w3.org/2000/svg"
+          width="32"
+          height="32"
+          viewBox="0 0 24 24"
+        >
+          <path
+            fill="currentColor"
+            d="M8 17.175V6.825q0-.425.3-.713t.7-.287q.125 0 .263.037t.262.113l8.15 5.175q.225.15.338.375t.112.475t-.112.475t-.338.375l-8.15 5.175q-.125.075-.262.113T9 18.175q-.4 0-.7-.288t-.3-.712"
+          />
+        </svg>
+      </button>
+      <!-- code body -->
+      <div ref="parent" />
+    </div>
+
+    <!-- output -->
+    <div v-show="showOutput" class="output">
       <svg
-        v-else
+        v-show="running"
         xmlns="http://www.w3.org/2000/svg"
         width="32"
-        height="32"
-        viewBox="0 0 24 24"
-      >
-        <path
-          fill="currentColor"
-          d="M8 17.175V6.825q0-.425.3-.713t.7-.287q.125 0 .263.037t.262.113l8.15 5.175q.225.15.338.375t.112.475t-.112.475t-.338.375l-8.15 5.175q-.125.075-.262.113T9 18.175q-.4 0-.7-.288t-.3-.712"
-        />
-      </svg>
-      <svg
-        v-if="false"
-        xmlns="http://www.w3.org/2000/svg"
-        width="32"
-        height="32"
-        viewBox="0 0 24 24"
+        height="200"
+        viewBox="0 6 24 12"
       >
         <circle cx="18" cy="12" r="0" fill="currentColor">
           <animate
@@ -318,28 +376,12 @@ function resetOutput() {
           />
         </circle>
       </svg>
-    </button>
-    <!-- code body -->
-    <div ref="parent" />
+      <!-- <code v-for="(line, i) in outputLines">
+          {{ line }}<br v-if="i != outputLines.length - 1" />
+        </code> -->
+      <div class="language-rust" v-html="output"></div>
+      <!-- {{ output }} -->
 
-    <!-- output -->
-    <div style="margin: 10px 0 0 0">
-      <div class="output">
-        <div class="language-rust vp-adaptive-theme line-numbers-mode">
-          <button title="Copy Code" class="copy"></button>
-          <code v-for="(line, i) in outputLines">
-            {{ line }}<br v-if="i != outputLines.length - 1" />
-          </code>
-        </div>
-
-        <input
-          v-if="waitingForInput"
-          ref="input"
-          v-model="inputText"
-          @keydown.enter="handleInput"
-          type="text"
-        />
-      </div>
       <button v-if="mounted" class="reset" @click="reset">
         {{ running ? "stop running" : "reset" }}
       </button>
@@ -350,17 +392,22 @@ function resetOutput() {
 <style scoped>
 div.wrapper {
   position: relative;
-  margin: 16px -24px;
+  border: 1px solid var(--vp-code-copy-code-border-color);
+  border-radius: 8px;
+  margin: 8px 0;
+  overflow: hidden;
 }
 
 :deep(.cm-editor) {
   font-size: var(--vp-code-font-size);
   background-color: var(--vp-code-block-bg);
   max-height: v-bind("props.maxHeight");
+  border-bottom: 1px solid var(--vp-c-divider);
 }
 
 :deep(.cm-editor.cm-focused) {
-  outline: 1px solid var(--vp-c-brand-1);
+  /* outline: 1px solid var(--vp-c-brand-1); */
+  outline: none;
 }
 
 :deep(.cm-scroller) {
@@ -401,20 +448,36 @@ div.wrapper {
   background-color: var(--vp-code-line-highlight-color);
 }
 
+button.options {
+  z-index: 3;
+  right: 110px !important;
+  width: 116px !important;
+}
+
 button.run {
   position: absolute;
   top: 12px;
   right: 12px;
-  border: 1px solid var(--vp-code-copy-code-border-color);
-  border-radius: 4px;
-  background-color: var(--vp-code-copy-code-bg);
-  width: 40px;
-  height: 40px;
+  z-index: 3;
+}
+
+button.copy {
+  position: absolute;
+  top: 12px;
+  right: 100px;
+  z-index: 3;
+}
+
+.options-toggle {
   display: flex;
-  justify-content: center;
   align-items: center;
-  color: var(--vp-c-brand-1);
-  z-index: 1;
+  gap: 4px;
+  padding: 4px 8px;
+  border-radius: 4px;
+  color: var(--vp-c-text-2);
+  font-size: 0.9em;
+  cursor: pointer;
+  height: 32px;
 }
 
 button.run:hover {
@@ -436,10 +499,11 @@ button.run:hover {
 }
 
 div.output {
+  margin: 10px -24px;
+  position: relative;
   background-color: var(--vp-code-block-bg);
   line-height: var(--vp-code-line-height);
-  margin-top: -8px;
-  padding: 20px 0;
+  /* padding: 20px 0; */
   box-sizing: content-box;
   overflow: auto;
   white-space: nowrap;
@@ -449,13 +513,9 @@ div.output:has(input:focus) {
   outline: 1px solid var(--vp-c-brand-1);
 }
 
-div.output code {
-  color: revert;
-  background: none;
-  width: 100%;
-  padding: 0 24px;
-  white-space: pre;
-  cursor: default;
+div.output .language-rust {
+  margin: 0;
+  max-height: v-bind("props.maxOutputHeight");
 }
 
 div.output code:last-of-type {
@@ -479,6 +539,7 @@ button.reset {
   position: absolute;
   top: 2px;
   right: 5px;
+  z-index: 12;
   font-size: 12px;
   font-weight: 500;
   padding: 0 3px;
@@ -494,6 +555,55 @@ button:focus-visible {
   outline: revert;
 }
 
+.options-menu {
+  position: absolute;
+  top: 100%;
+  right: 0;
+  margin-top: 4px;
+  padding: 8px;
+  border: 1px solid var(--vp-code-copy-code-border-color);
+  border-radius: 6px;
+  background: var(--vp-c-bg);
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  min-width: 200px;
+}
+
+.option {
+  margin: 8px 0;
+}
+
+.option:first-child {
+  margin-top: 0;
+}
+
+.option:last-child {
+  margin-bottom: 0;
+}
+
+.option label {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  color: var(--vp-c-text-2);
+  font-size: 0.9em;
+}
+
+.option select {
+  padding: 4px 8px;
+  border: 1px solid var(--vp-code-copy-code-border-color);
+  border-radius: 4px;
+  background: var(--vp-c-bg);
+  color: var(--vp-c-text-1);
+  font-size: 0.9em;
+  min-width: 100px;
+}
+
+.option input[type="checkbox"] {
+  margin: 0;
+  cursor: pointer;
+}
+
 @media (min-width: 640px) {
   div.wrapper {
     margin: 16px 0;
@@ -502,6 +612,9 @@ button:focus-visible {
   :deep(.cm-editor),
   div.output {
     border-radius: 8px;
+  }
+  div.output {
+    margin: 16px 0;
   }
 }
 </style>

@@ -1,3 +1,4 @@
+import vm from "node:vm";
 import type { Options } from "./config";
 
 export type LangType = "rust" | "ts";
@@ -16,8 +17,7 @@ export const getCodeConfig = (configRaw: string): Options | null => {
     // 解析JSON配置
     const evalConfigStr = `(() => (${configRaw} || {}))()`
 
-    const config = eval(evalConfigStr)
-    return config;
+    return vm.runInNewContext(evalConfigStr) as Options;
   } catch (e) {
     // 如果JSON解析失败，则返回null
     return null;
@@ -43,10 +43,10 @@ export const checkCodeIntegrity = (lang: string, rawCode: string) => {
 };
 
 
-export function fetchWithTimeout(url: string, options: RequestInit, timeout = 6000) {
+export function fetchWithTimeout(url: string, options: RequestInit, timeout = 12000) {
   return Promise.race([
     fetch(url, options),
-    new Promise((_, reject) => setTimeout(() => reject(new Error(`Request to ${url} timed out after ${timeout}ms`)), timeout)),
+    new Promise((_, reject) => setTimeout(() => reject(new Error(`Request timed out after ${timeout}ms`)), timeout)),
   ]);
 }
 

@@ -1,34 +1,30 @@
-
-#  rust playground for vitepress
+# rust playground for vitepress
 
 This is a Rust playground for vitepress. It uses the Rust Playground API to provide code execution and syntax highlighting.
 
-# usage
+## Install
 
-
-## 安装
-```
-pnpm install -g @ver5/vitepress-plugin-rust-playground
+```sh
+pnpm add @ver5/vitepress-plugin-rust-playground
 ```
 
-## vitepress plugin
+## Usage
 
-```
-import { editorPlugin } from '@ver5/vitepress-plugin-editor/markdown-it'
+```ts
+import { type rustPlaygroundOptions, editorPlugin } from '@ver5/vitepress-plugin-editor/vitepress'
 
 
-md.use(editorPlugin,{
-  lang: 'rust',  // 默认 rust
+md.use<rustPlaygroundOptions>(editorPlugin,{
   version: 'stable',  // 指定 rust 版本
   edition: '2021' // 指定 rust edition
 })
 
 ```
 
-在 md 文件中使用 需要在代码块中的第一行使用 `//\`` 之后加上配置的方式，如下：
+Use `:{}` in the md file with the configuration, in the form of object literals, note the double quotes, as follows:
+
 ````md
-```rust
-//` {version:"stable",edition:"2021",maxHeight:"400px"}
+```rust:{version:"stable",edition:"2021",maxHeight:"400px"}
   fn main() {
       println!("Hello, world!");
   }
@@ -36,19 +32,21 @@ md.use(editorPlugin,{
 ````
 
 or use `no_run` to disable code execution:
+
 ````md
-```rust
-//` no_run
+```rust no_run
   fn main() {
       println!("Hello, world!");
   }
 ```
 ````
 
+## TODO
 
-
+- [ ] user input
 
 # Credits
+
 https://github.com/zqianem/vitepress-python-editor/
 https://play.rust-lang.org/?version=nightly&mode=debug&edition=2021
 https://lab.cs.tsinghua.edu.cn/rust/play/?version=stable&mode=debug&edition=2021

@@ -1,4 +1,4 @@
-import type MarkdownIt from 'markdown-it'
+import type MarkdownIt from "markdown-it/index.mjs";
 import type StateCore from 'markdown-it/lib/rules_core/state_core.mjs'
 import type Token from 'markdown-it/lib/token.mjs'
 
@@ -25,7 +25,7 @@ export function ElementTransform(md: MarkdownIt, options: Options) {
   md.core.ruler.push(
     'token_transform',
     (state) => {
-      const transformFunc = options.transform === undefined ? function () { } : options.transform
+      const transformFunc = options.transform === undefined ? () => { } : options.transform
 
       state.tokens.forEach((token) => {
         if (token.children && token.children.length) {

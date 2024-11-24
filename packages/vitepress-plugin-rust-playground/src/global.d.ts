@@ -1,5 +1,5 @@
 
 declare module 'simple-stringify' {
-  const stringify: any;
-  export default stringify;
+  const stringify: any
+  export default stringify
 }

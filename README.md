@@ -1,6 +1,7 @@
 # 个人的 vitepress 工具合集
 
-提供的一些功能、组件，完善页面的展示效果
+该项目中大部分都来自他人的开源项目，修改了大部分代码为满足自己的使用需求，里面提供了一些功能和组件，
+也许有你想要的。
 
 ```shell
 pnpm i @ver5/<name> -D
@@ -9,14 +10,15 @@ pnpm i @ver5/<name> -D
 
 要找到集成的名称，下面是一个我们当前支持的集成列表：
 
-- [双向链接（`markdown-it` 插件）](./packages/markdown-it-bi-directional-links/README.md)
-- [元素转换（`markdown-it` 插件）](./packages/markdown-it-element-transform/README.md)
-- [阅读增强（VitePress 插件）](./packages/vitepress-plugin-enhanced-readabilities/README.md)
-- [行内链接预览（VitePress 插件）](./packages/vitepress-plugin-inline-link-preview/README.md)
-- [闪烁高亮当前的目标标题（VitePress 插件）](./packages/vitepress-plugin-highlight-targeted-heading/README.md)
-- [页面属性（VitePress 插件）](./packages/vitepress-plugin-page-properties/README.md)
-- [预览图片（社交媒体卡片）生成（VitePress 插件）](./packages/vitepress-plugin-og-image/README.md)
-- [`<mark>` 元素增强（VitePress 插件）](./packages/vitepress-plugin-enhanced-mark/README.md)
+- [控制文本块对齐（`markdown-it` 插件）](./packages/markdown-it-align/README.md)
+- [内部链接（`markdown-it` 插件）](./packages/markdown-it-link-links/README.md)
+- [元素转换（`markdown-it` 插件）](./packages/markdown-it-token/README.md)
+- [图片转换（`markdown-it` 插件）](./packages/markdown-it-image/README.md)
+- [`<mark>` 元素增强（VitePress 插件）](./packages/vitepress-plugin-mark/README.md)
+- [行内链接预览（VitePress 插件）](./packages/vitepress-plugin-link-preview/README.md)
+- [rust playground（VitePress 插件）](./packages/vitepress-plugin-rust-playground/README.md)
+- [自动生成 sidebar（VitePress 插件）](./packages/vitepress-plugin-search/README.md)
+- [全文搜索（VitePress 插件）](./packages/vitepress-plugin-search/README.md)
 
 ## 如何开发
 
@@ -29,7 +31,7 @@ pnpm i @ver5/<name> -D
 pnpm run packages:stub
 ```
 
-## 如何构建
+## 构建
 
 ```sh
 pnpm run packages:build

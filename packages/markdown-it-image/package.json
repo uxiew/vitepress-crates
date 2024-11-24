@@ -1,0 +1,49 @@
+{
+  "name": "@ver5/markdown-it-image",
+  "version": "1.0.0",
+  "description": "image plugin for markdown-it",
+  "files": [
+    "README.md",
+    "dist",
+    "package.json"
+  ],
+  "keywords": [
+    "vitepress",
+    "vitepress-plugin",
+    "markdown-it",
+    "markdown-it-image"
+  ],
+  "author": "ChandlerVer5",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/uxiew/vitepress-crates/issues"
+  },
+  "homepage": "https://github.com/uxiew/vitepress-crates#readme",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/uxiew/vitepress-crates"
+  },
+  "type": "module",
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.mjs",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "require": "./dist/index.cjs",
+      "import": "./dist/index.mjs",
+      "types": "./dist/index.d.ts"
+    }
+  },
+  "scripts": {
+    "dev": "unbuild --stub",
+    "stub": "unbuild --stub",
+    "build": "unbuild",
+    "package:publish": "pnpm build && pnpm publish --access public --no-git-checks"
+  },
+  "devDependencies": {
+    "@types/markdown-it": "^14.1.1"
+  },
+  "dependencies": {
+    "markdown-it": "^14.1.0"
+  }
+}

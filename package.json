@@ -1,7 +1,7 @@
 {
   "name": "@ver5/vitepress",
   "type": "module",
-  "version": "0.1.0",
+  "version": "1.0.0",
   "packageManager": "pnpm@9.4.0",
   "description": "A collection of diverse documentation engineering tools.",
   "author": {
@@ -10,7 +10,12 @@
     "url": "https://github.com/uxiew"
   },
   "license": "MIT",
-  "keywords": ["vitepress", "nolebase", "markdown", "vitepress-plugin", "nolebase-integration"],
+  "keywords": [
+    "vitepress",
+    "markdown",
+    "markdown-it",
+    "vitepress-plugin"
+  ],
   "scripts": {
     "stub": "pnpm -r --filter=./packages/* --parallel run stub",
     "lint": "eslint --cache .",
@@ -52,5 +57,7 @@
     "vue": "^3.4.30",
     "vue-tsc": "^1.8.27"
   },
-  "workspaces": ["packages/*"]
+  "workspaces": [
+    "packages/*"
+  ]
 }

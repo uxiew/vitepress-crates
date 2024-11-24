@@ -1,3 +1,4 @@
+import { stderr } from "process";
 import { type Options, defaultConfig } from "./config";
 import { fetchWithTimeout } from "./utils";
 
@@ -18,7 +19,7 @@ interface RunParams {
 
 export interface RunResult {
   success: boolean
-  exitDetail: string
+  exitDetail?: string
   stdout: string
   stderr: string
 }
@@ -43,19 +44,29 @@ export async function runRustCode({ code, options }: RunParams): Promise<RunResu
     mode: "cors",
     body: JSON.stringify(params),
   })
-    .then((response) => (response as Response).json())
-    .then((response) => {
-      return response
-      let error = '', result = response.result.trim();
-      if (response.result.error) {
-        error = error;
-        // resultBlock.classList.add("result-no-output");
-      } else {
-        result = response.result.replace(
-          /--explain (E\d+)/,
-          `--explain <a target="_blank" href="https://doc.rust-lang.org/error_codes/$1.html">$1</a>`,
-        );
+    .then(async response => {
+
+      const result = await (response as Response).json()
+
+      if (result.error) {
+        return {
+          stderr: result.error,
+          success: false,
+        }
       }
-      return { error, result: response.result.trim() }
+      return result
     })
+  /* .then((response) => {
+    let error = '', result = response.result.trim();
+    if (response.result.error) {
+      error = error;
+      // resultBlock.classList.add("result-no-output");
+    } else {
+      result = response.result.replace(
+        /--explain (E\d+)/,
+        `--explain <a target="_blank" href="https://doc.rust-lang.org/error_codes/$1.html">$1</a>`,
+      );
+    }
+    return { error, result: response.result.trim() }
+  }) */
 }

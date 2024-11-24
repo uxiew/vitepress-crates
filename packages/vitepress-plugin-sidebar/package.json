@@ -1,0 +1,51 @@
+{
+  "name": "@ver5/vitepress-plugin-sidebar",
+  "version": "1.0.0",
+  "description": "a vitePress plugin that automatically configures and manages the sidebar of your page",
+  "files": [
+    "README.md",
+    "dist",
+    "package.json"
+  ],
+  "keywords": [
+    "vitepress",
+    "vitepress-plugin",
+    "sidebar",
+    "vitepress-sidebar"
+  ],
+  "author": "ChandlerVer5",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/uxiew/vitepress-crates/issues"
+  },
+  "homepage": "https://github.com/uxiew/vitepress-crates#readme",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/uxiew/vitepress-crates"
+  },
+  "type": "module",
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.mjs",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "require": "./dist/index.cjs",
+      "import": "./dist/index.mjs",
+      "types": "./dist/index.d.ts"
+    }
+  },
+  "scripts": {
+    "dev": "unbuild --stub",
+    "stub": "unbuild --stub",
+    "build": "unbuild",
+    "package:publish": "pnpm build && pnpm publish --access public --no-git-checks"
+  },
+  "dependencies": {
+    "@cjs-exporter/globby": "^13.1.3",
+    "lodash": "^4.17.21"
+  },
+  "devDependencies": {
+    "@types/lodash": "^4.17.6",
+    "@types/node": "^20.14.9"
+  }
+}
