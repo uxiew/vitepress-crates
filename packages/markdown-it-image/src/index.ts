@@ -34,7 +34,7 @@ export const imagePlugin = (md: MarkdownIt, { lazy = true, caption = true, cente
     const titleIndex = token.attrIndex("title");
     if (titleIndex >= 0) {
       const [title, size] = token.attrs[titleIndex][1].split("=");
-      const [width, height] = size ? size.split(/X|x/).map((v) => v.trim()) : [];
+      const [width, height] = size ? size.split(/\*|X|x/).map((v) => v.trim()) : [];
 
       let style = center ? "margin: auto;" : "";
       if (width) style += `width: ${width}px;`;
