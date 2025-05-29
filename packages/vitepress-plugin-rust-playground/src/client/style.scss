@@ -2,6 +2,10 @@ $btnName: ".run, button.options";
 
 .vp-doc {
   div[class*="language-"] {
+    &,
+    .vp-block {
+      overflow: visible;
+    }
     &:hover {
       button#{$btnName},
       button#{$btnName}:focus {

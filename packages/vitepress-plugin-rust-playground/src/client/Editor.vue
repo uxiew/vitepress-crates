@@ -1,32 +1,32 @@
 <script setup lang="ts">
 import {
   computed,
-  ref,
+  inject,
+  nextTick,
   onMounted,
   onUnmounted,
+  ref,
   watchEffect,
-  nextTick,
-  inject,
 } from "vue";
 import {
   EditorView,
-  highlightSpecialChars,
   drawSelection,
+  highlightActiveLine,
+  highlightSpecialChars,
   keymap,
   lineNumbers,
-  highlightActiveLine,
 } from "@codemirror/view";
 import {
-  history,
   defaultKeymap,
+  history,
   historyKeymap,
   indentWithTab,
 } from "@codemirror/commands";
-import { styling } from "./codemirror-styling";
-import { excludeKeys, type DistributiveOmit } from "filter-obj";
+import { type DistributiveOmit, excludeKeys } from "filter-obj";
 import { type ShikiTransformer, codeToHtml } from "shiki";
-import { runRustCode, type RunResult } from "./rust";
-import { type Options } from "./config";
+import { styling } from "./codemirror-styling";
+import { type RunResult, runRustCode } from "./rust";
+import type { Options } from "./config";
 import "./style.css";
 
 interface Props {
@@ -68,9 +68,9 @@ const storageKey = computed(() => `rp-${props.id}`);
 const mounted = ref(false);
 const running = ref(false);
 
-let anchor = ref<HTMLDivElement>();
-let parent = ref<HTMLDivElement>();
-let input = ref<HTMLInputElement>();
+const anchor = ref<HTMLDivElement>();
+const parent = ref<HTMLDivElement>();
+const input = ref<HTMLInputElement>();
 let initialCode: string;
 let editor: EditorView;
 
@@ -83,7 +83,7 @@ onMounted(() => {
   initialCode = codeElement?.querySelector("pre")?.textContent ?? "";
   codeElement?.setAttribute("hidden", "");
 
-  document.addEventListener('click', handleClickOutside);
+  document.addEventListener("click", handleClickOutside);
 
   editor = new EditorView({
     extensions: [
@@ -118,7 +118,7 @@ onMounted(() => {
 });
 
 onUnmounted(() => {
-  document.removeEventListener('click', handleClickOutside);
+  document.removeEventListener("click", handleClickOutside);
   save(editor.state.doc.toString());
   editor.destroy();
 });
@@ -162,7 +162,7 @@ async function run() {
 }
 
 function reset() {
-  if (running.value)  return;
+  if (running.value) return;
   localStorage.removeItem(storageKey.value);
   editor.dispatch({
     changes: { from: 0, to: editor.state.doc.length, insert: initialCode },
@@ -186,8 +186,8 @@ let outputCol = 0;
 async function updateOutput(raw: RunResult) {
   const { success, stdout, stderr } = raw;
 
-  let res =  '';
-  const sep =  '=========';
+  let res = "";
+  const sep = "=========";
   res += `${sep}Standard Output:${sep}\n${stdout}\n`;
   res += `${sep}Standard Error:${sep}\n${stderr}`;
 
@@ -233,61 +233,84 @@ function handleClickOutside(event: MouseEvent) {
 
 <template>
   <div ref="anchor">
-    <div class="wrapper language-rust" :id="'rp_' + props.id">
+    <div :id="`rp_${props.id}`" class="wrapper language-rust">
       <!-- options dropdown -->
-      <button class="options" v-if="mounted" ref="optionsRef">
+      <button v-if="mounted" ref="optionsRef" class="options">
         <button class="options-toggle" @click="showOptions = !showOptions">
           <span>{{ execOptions.channel }} ({{ execOptions.edition }})</span>
-          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24">
-            <path fill="currentColor" d="M7 10l5 5 5-5z"/>
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="16"
+            height="16"
+            viewBox="0 0 24 24"
+          >
+            <path fill="currentColor" d="M7 10l5 5 5-5z" />
           </svg>
         </button>
-        <div class="options-menu" v-show="showOptions">
+        <div v-show="showOptions" class="options-menu">
           <div class="option">
-            <label>Channel: <select v-model="execOptions.channel">
-              <option value="stable">Stable</option>
-              <option value="beta">Beta</option>
-              <option value="nightly">Nightly</option>
-            </select></label>
+            <label
+              >Channel:
+              <select v-model="execOptions.channel">
+                <option value="stable">Stable</option>
+                <option value="beta">Beta</option>
+                <option value="nightly">Nightly</option>
+              </select></label
+            >
           </div>
           <div class="option">
-            <label>Edition: <select v-model="execOptions.edition">
-              <option value="2015">2015</option>
-              <option value="2018">2018</option>
-              <option value="2021">2021</option>
-              <option value="2024">2024</option>
-            </select></label>
+            <label
+              >Edition:
+              <select v-model="execOptions.edition">
+                <option value="2015">2015</option>
+                <option value="2018">2018</option>
+                <option value="2021">2021</option>
+                <option value="2024">2024</option>
+              </select></label
+            >
           </div>
           <div class="option">
-            <label>Mode: <select v-model="execOptions.mode">
-              <option value="debug">Debug</option>
-              <option value="release">Release</option>
-            </select></label>
+            <label
+              >Mode:
+              <select v-model="execOptions.mode">
+                <option value="debug">Debug</option>
+                <option value="release">Release</option>
+              </select></label
+            >
           </div>
           <div class="option">
-            <label>Type: <select v-model="execOptions.crateType">
-              <option value="bin">Binary</option>
-              <option value="lib">Library</option>
-            </select></label>
+            <label
+              >Type:
+              <select v-model="execOptions.crateType">
+                <option value="bin">Binary</option>
+                <option value="lib">Library</option>
+              </select></label
+            >
           </div>
           <div class="option">
-            <label><input type="checkbox" v-model="execOptions.tests"> Run Tests</label>
+            <label
+              ><input v-model="execOptions.tests" type="checkbox" /> Run
+              Tests</label
+            >
           </div>
           <div class="option">
-            <label><input type="checkbox" v-model="execOptions.backtrace"> Show Backtrace</label>
+            <label
+              ><input v-model="execOptions.backtrace" type="checkbox" /> Show
+              Backtrace</label
+            >
           </div>
         </div>
       </button>
-      
+
       <!-- inject vitepress's copy code button -->
-      <button title="Copy Code" class="copy"></button>
-      
+      <button title="Copy Code" class="copy" />
+
       <button
         v-if="mounted"
         class="run"
-        @click="run"
         :disabled="running"
         :title="buttonText"
+        @click="run"
       >
         <span class="sr-only">{{ buttonText }}</span>
         <svg
@@ -379,7 +402,7 @@ function handleClickOutside(event: MouseEvent) {
       <!-- <code v-for="(line, i) in outputLines">
           {{ line }}<br v-if="i != outputLines.length - 1" />
         </code> -->
-      <div class="language-rust" v-html="output"></div>
+      <div class="language-rust" v-html="output" />
       <!-- {{ output }} -->
 
       <button v-if="mounted" class="reset" @click="reset">
@@ -394,8 +417,6 @@ div.wrapper {
   position: relative;
   border: 1px solid var(--vp-code-copy-code-border-color);
   border-radius: 8px;
-  margin: 8px 0;
-  overflow: hidden;
 }
 
 :deep(.cm-editor) {
@@ -606,7 +627,7 @@ button:focus-visible {
 
 @media (min-width: 640px) {
   div.wrapper {
-    margin: 16px 0;
+    margin: 8px 0;
   }
 
   :deep(.cm-editor),
@@ -614,7 +635,7 @@ button:focus-visible {
     border-radius: 8px;
   }
   div.output {
-    margin: 16px 0;
+    margin: 8px 0;
   }
 }
 </style>

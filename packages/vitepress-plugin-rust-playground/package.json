@@ -1,6 +1,6 @@
 {
   "name": "@ver5/vitepress-plugin-rust-playground",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "",
   "files": [
     "README.md",
