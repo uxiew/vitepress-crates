@@ -438,7 +438,7 @@ div.wrapper {
 
 :deep(.cm-editor .cm-content) {
   font-family: var(--vp-font-family-mono);
-  padding: 20px 0;
+  padding: 8px 0;
 }
 
 :deep(.cm-editor .cm-gutters) {
@@ -461,7 +461,7 @@ div.wrapper {
 }
 
 :deep(.cm-editor .cm-line) {
-  padding: 0 72px 0 24px;
+  padding: 0 28px 0 10px;
   line-height: var(--vp-code-line-height);
 }
 
@@ -524,7 +524,7 @@ div.output {
   position: relative;
   background-color: var(--vp-code-block-bg);
   line-height: var(--vp-code-line-height);
-  /* padding: 20px 0; */
+  /* padding: 8px 0; */
   box-sizing: content-box;
   overflow: auto;
   white-space: nowrap;
