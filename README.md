@@ -17,7 +17,7 @@ pnpm i @ver5/<name> -D
 - [`<mark>` 元素增强（VitePress 插件）](./packages/vitepress-plugin-mark/README.md)
 - [行内链接预览（VitePress 插件）](./packages/vitepress-plugin-link-preview/README.md)
 - [rust playground（VitePress 插件）](./packages/vitepress-plugin-rust-playground/README.md)
-- [自动生成 sidebar（VitePress 插件）](./packages/vitepress-plugin-search/README.md)
+- [自动生成 sidebar（VitePress 插件）](./packages/vitepress-plugin-sidebar/README.md)
 - [全文搜索（VitePress 插件）](./packages/vitepress-plugin-search/README.md)
 
 ## 如何开发

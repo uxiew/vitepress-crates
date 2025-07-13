@@ -56,8 +56,8 @@ export const rustPlaygroundPlugin = (md: MarkdownIt, options: Options = {}) => {
           htmlCode = htmlCode.replace(/"(language-rust)/, '"$1 no_run');
           return htmlCode
         }
-        let execOptions = {};
 
+        let execOptions = options;
         // @ts-ignore
         const match = tokens[idx]._info.match(/:({.*?})/);
         const configRaw = match && match[1] && match[1].trim() || "";

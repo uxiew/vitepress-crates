@@ -44,8 +44,8 @@ interface Props {
 }
 
 const props = withDefaults(defineProps<Props>(), {
-  maxHeight: "344px", // 2:1 ratio with VitePress theme's max width of 688px
-  maxOutputHeight: "400px", // 2:1 ratio with VitePress theme's max width of 688px
+  maxHeight: "400px", // 2:1 ratio with VitePress theme's max width of 688px
+  maxOutputHeight: "420px", // 2:1 ratio with VitePress theme's max width of 688px
   channel: "stable",
   edition: "2021",
   mode: "debug",
@@ -206,7 +206,7 @@ async function updateOutput(raw: RunResult) {
       // language: 'rust_mir' | 'rust_errors';
       {
         name: "rp:error-output",
-        code(hast) {},
+        code(hast) { },
         line(node, line) {
           this.meta;
           node.children.forEach((child) => {
@@ -238,66 +238,49 @@ function handleClickOutside(event: MouseEvent) {
       <button v-if="mounted" ref="optionsRef" class="options">
         <button class="options-toggle" @click="showOptions = !showOptions">
           <span>{{ execOptions.channel }} ({{ execOptions.edition }})</span>
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            width="16"
-            height="16"
-            viewBox="0 0 24 24"
-          >
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24">
             <path fill="currentColor" d="M7 10l5 5 5-5z" />
           </svg>
         </button>
         <div v-show="showOptions" class="options-menu">
           <div class="option">
-            <label
-              >Channel:
+            <label>Channel:
               <select v-model="execOptions.channel">
                 <option value="stable">Stable</option>
                 <option value="beta">Beta</option>
                 <option value="nightly">Nightly</option>
-              </select></label
-            >
+              </select></label>
           </div>
           <div class="option">
-            <label
-              >Edition:
+            <label>Edition:
               <select v-model="execOptions.edition">
                 <option value="2015">2015</option>
                 <option value="2018">2018</option>
                 <option value="2021">2021</option>
                 <option value="2024">2024</option>
-              </select></label
-            >
+              </select></label>
           </div>
           <div class="option">
-            <label
-              >Mode:
+            <label>Mode:
               <select v-model="execOptions.mode">
                 <option value="debug">Debug</option>
                 <option value="release">Release</option>
-              </select></label
-            >
+              </select></label>
           </div>
           <div class="option">
-            <label
-              >Type:
+            <label>Type:
               <select v-model="execOptions.crateType">
                 <option value="bin">Binary</option>
                 <option value="lib">Library</option>
-              </select></label
-            >
+              </select></label>
           </div>
           <div class="option">
-            <label
-              ><input v-model="execOptions.tests" type="checkbox" /> Run
-              Tests</label
-            >
+            <label><input v-model="execOptions.tests" type="checkbox" /> Run
+              Tests</label>
           </div>
           <div class="option">
-            <label
-              ><input v-model="execOptions.backtrace" type="checkbox" /> Show
-              Backtrace</label
-            >
+            <label><input v-model="execOptions.backtrace" type="checkbox" /> Show
+              Backtrace</label>
           </div>
         </div>
       </button>
@@ -305,51 +288,19 @@ function handleClickOutside(event: MouseEvent) {
       <!-- inject vitepress's copy code button -->
       <button title="Copy Code" class="copy" />
 
-      <button
-        v-if="mounted"
-        class="run"
-        :disabled="running"
-        :title="buttonText"
-        @click="run"
-      >
+      <button v-if="mounted" class="run" :disabled="running" :title="buttonText" @click="run">
         <span class="sr-only">{{ buttonText }}</span>
-        <svg
-          v-if="running"
-          xmlns="http://www.w3.org/2000/svg"
-          width="32"
-          height="32"
-          viewBox="0 0 24 24"
-        >
-          <path
-            fill="currentColor"
-            d="M12 2A10 10 0 1 0 22 12A10 10 0 0 0 12 2Zm0 18a8 8 0 1 1 8-8A8 8 0 0 1 12 20Z"
-            opacity=".5"
-          />
-          <path
-            fill="currentColor"
-            d="M20 12h2A10 10 0 0 0 12 2V4A8 8 0 0 1 20 12Z"
-          >
-            <animateTransform
-              attributeName="transform"
-              dur="1s"
-              from="0 12 12"
-              repeatCount="indefinite"
-              to="360 12 12"
-              type="rotate"
-            />
+        <svg v-if="running" xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24">
+          <path fill="currentColor" d="M12 2A10 10 0 1 0 22 12A10 10 0 0 0 12 2Zm0 18a8 8 0 1 1 8-8A8 8 0 0 1 12 20Z"
+            opacity=".5" />
+          <path fill="currentColor" d="M20 12h2A10 10 0 0 0 12 2V4A8 8 0 0 1 20 12Z">
+            <animateTransform attributeName="transform" dur="1s" from="0 12 12" repeatCount="indefinite" to="360 12 12"
+              type="rotate" />
           </path>
         </svg>
-        <svg
-          v-else
-          xmlns="http://www.w3.org/2000/svg"
-          width="32"
-          height="32"
-          viewBox="0 0 24 24"
-        >
-          <path
-            fill="currentColor"
-            d="M8 17.175V6.825q0-.425.3-.713t.7-.287q.125 0 .263.037t.262.113l8.15 5.175q.225.15.338.375t.112.475t-.112.475t-.338.375l-8.15 5.175q-.125.075-.262.113T9 18.175q-.4 0-.7-.288t-.3-.712"
-          />
+        <svg v-else xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24">
+          <path fill="currentColor"
+            d="M8 17.175V6.825q0-.425.3-.713t.7-.287q.125 0 .263.037t.262.113l8.15 5.175q.225.15.338.375t.112.475t-.112.475t-.338.375l-8.15 5.175q-.125.075-.262.113T9 18.175q-.4 0-.7-.288t-.3-.712" />
         </svg>
       </button>
       <!-- code body -->
@@ -358,45 +309,18 @@ function handleClickOutside(event: MouseEvent) {
 
     <!-- output -->
     <div v-show="showOutput" class="output">
-      <svg
-        v-show="running"
-        xmlns="http://www.w3.org/2000/svg"
-        width="32"
-        height="200"
-        viewBox="0 6 24 12"
-      >
+      <svg v-show="running" xmlns="http://www.w3.org/2000/svg" width="32" height="200" viewBox="0 6 24 12">
         <circle cx="18" cy="12" r="0" fill="currentColor">
-          <animate
-            attributeName="r"
-            begin=".67"
-            calcMode="spline"
-            dur="1.5s"
-            keySplines="0.2 0.2 0.4 0.8;0.2 0.2 0.4 0.8;0.2 0.2 0.4 0.8"
-            repeatCount="indefinite"
-            values="0;2;0;0"
-          />
+          <animate attributeName="r" begin=".67" calcMode="spline" dur="1.5s"
+            keySplines="0.2 0.2 0.4 0.8;0.2 0.2 0.4 0.8;0.2 0.2 0.4 0.8" repeatCount="indefinite" values="0;2;0;0" />
         </circle>
         <circle cx="12" cy="12" r="0" fill="currentColor">
-          <animate
-            attributeName="r"
-            begin=".33"
-            calcMode="spline"
-            dur="1.5s"
-            keySplines="0.2 0.2 0.4 0.8;0.2 0.2 0.4 0.8;0.2 0.2 0.4 0.8"
-            repeatCount="indefinite"
-            values="0;2;0;0"
-          />
+          <animate attributeName="r" begin=".33" calcMode="spline" dur="1.5s"
+            keySplines="0.2 0.2 0.4 0.8;0.2 0.2 0.4 0.8;0.2 0.2 0.4 0.8" repeatCount="indefinite" values="0;2;0;0" />
         </circle>
         <circle cx="6" cy="12" r="0" fill="currentColor">
-          <animate
-            attributeName="r"
-            begin="0"
-            calcMode="spline"
-            dur="1.5s"
-            keySplines="0.2 0.2 0.4 0.8;0.2 0.2 0.4 0.8;0.2 0.2 0.4 0.8"
-            repeatCount="indefinite"
-            values="0;2;0;0"
-          />
+          <animate attributeName="r" begin="0" calcMode="spline" dur="1.5s"
+            keySplines="0.2 0.2 0.4 0.8;0.2 0.2 0.4 0.8;0.2 0.2 0.4 0.8" repeatCount="indefinite" values="0;2;0;0" />
         </circle>
       </svg>
       <!-- <code v-for="(line, i) in outputLines">
@@ -472,7 +396,7 @@ div.wrapper {
 button.options {
   z-index: 3;
   right: 110px !important;
-  width: 116px !important;
+  width: auto !important;
 }
 
 button.run {
@@ -492,7 +416,7 @@ button.copy {
 .options-toggle {
   display: flex;
   align-items: center;
-  gap: 4px;
+  gap: 2px;
   padding: 4px 8px;
   border-radius: 4px;
   color: var(--vp-c-text-2);
@@ -634,6 +558,7 @@ button:focus-visible {
   div.output {
     border-radius: 8px;
   }
+
   div.output {
     margin: 8px 0;
   }
